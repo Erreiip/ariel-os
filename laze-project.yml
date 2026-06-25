@@ -195,6 +195,23 @@ contexts:
         cmd: # We have to obfuscate the variables to avoid cargo interpreting them since we're running a rust script
           - _CARGO_TOOLCHAIN='${CARGO_TOOLCHAIN}' _RUSTFLAGS="${RUSTFLAGS}" ${relroot}/${root}/scripts/editor-config.rs $@
 
+  - name: same54
+    help: Test Pierre
+    parent: ariel-os
+    selects:
+      - ?probers
+      - cortex-m4f
+    provides:
+      - has_device_identity
+      - has_swi
+      - sw/benchmark
+    env:
+      PROBE_RS_CHIP: ATSAME54P20A
+      CARGO_RUNNER: # peut etre a enlever a voir
+        - ${SCRIPTS}/debug-openocd.sh
+      OPENOCD_ARGS:
+        - "-f board/atmel_sam4s_xplained_pro.cfg"
+
   - name: nrf
     help: Nordic MCU support (based on embassy-nrf)
     parent: ariel-os

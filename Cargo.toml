@@ -16,6 +16,7 @@ members = [
   "src/ariel-os-log",
   "src/ariel-os-macros",
   "src/ariel-os-nrf",
+  "src/ariel-os-atsamd",
   "src/ariel-os-power",
   "src/ariel-os-random",
   "src/ariel-os-rp",
@@ -93,6 +94,8 @@ embassy-time-driver = { version = "0.2.2", default-features = false }
 embassy-time-queue-utils = { version = "0.3.0", default-features = false }
 embassy-usb = { version = "0.6.0", default-features = false }
 
+atsamd-hal = { version = "0.23.3", default-features = false }
+
 embedded-hal = { version = "1.0.0", default-features = false }
 embedded-hal-async = { version = "1.0.0", default-features = false }
 embedded-io = { version = "0.6.1", default-features = false }
@@ -137,6 +140,7 @@ ariel-os-identity = { path = "src/ariel-os-identity" }
 ariel-os-log = { path = "src/ariel-os-log", default-features = false }
 ariel-os-macros = { path = "src/ariel-os-macros" }
 ariel-os-nrf = { path = "src/ariel-os-nrf" }
+ariel-os-atsamd = { path = "src/ariel-os-atsamd" }
 ariel-os-power = { path = "src/ariel-os-power" }
 ariel-os-random = { path = "src/ariel-os-random" }
 ariel-os-rp = { path = "src/ariel-os-rp" }

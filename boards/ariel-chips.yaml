@@ -5,6 +5,7 @@ ariel:
   # This list contains all currently supported chips. The names must correspond
   # to an Ariel OS laze context.
   chips:
+    - same54
     - esp-c3-01m
     - esp-wroom-32
     - esp32-wroom-32d

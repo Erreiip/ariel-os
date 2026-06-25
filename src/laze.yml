@@ -1,5 +1,6 @@
 subdirs:
   - ariel-os
+  - ariel-os-atsamd
   - ariel-os-alloc
   - ariel-os-boards
   - ariel-os-embassy

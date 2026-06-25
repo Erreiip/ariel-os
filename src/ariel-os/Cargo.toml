@@ -29,6 +29,7 @@ ariel-os-identity = { workspace = true }
 ariel-os-log = { workspace = true }
 ariel-os-macros = { path = "../ariel-os-macros" }
 ariel-os-nrf = { path = "../ariel-os-nrf", optional = true }
+ariel-os-atsamd = { path = "../ariel-os-atsamd", optional = true }
 ariel-os-power = { path = "../ariel-os-power" }
 ariel-os-random = { workspace = true, optional = true }
 ariel-os-rt = { path = "../ariel-os-rt" }

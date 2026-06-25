@@ -141,6 +141,7 @@ dependencies = [
 name = "ariel-os"
 version = "0.5.0"
 dependencies = [
+ "ariel-os-atsamd",
  "ariel-os-bench",
  "ariel-os-boards",
  "ariel-os-buildinfo",
@@ -178,6 +179,24 @@ dependencies = [
  "esp-alloc",
  "esp-hal",
  "esp-metadata-generated",
+]
+
+[[package]]
+name = "ariel-os-atsamd"
+version = "0.5.0"
+dependencies = [
+ "ariel-os-embassy-common",
+ "ariel-os-log",
+ "ariel-os-random",
+ "ariel-os-rt",
+ "atsamd-hal",
+ "cortex-m",
+ "defmt 1.1.0",
+ "embassy-embedded-hal",
+ "embassy-executor",
+ "embassy-sync 0.7.2",
+ "embedded-hal-async",
+ "embedded-io-async 0.6.1",
 ]
 
 [[package]]
@@ -349,6 +368,7 @@ dependencies = [
 name = "ariel-os-hal"
 version = "0.5.0"
 dependencies = [
+ "ariel-os-atsamd",
  "ariel-os-embassy-common",
  "ariel-os-esp",
  "ariel-os-native",
@@ -821,6 +841,62 @@ dependencies = [
 ]
 
 [[package]]
+name = "atsamd-hal"
+version = "0.23.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9d5d921cff0fd6fceed33f484b48fff317cbb73351630deca45c663ac3cca421"
+dependencies = [
+ "aes",
+ "atsamd-hal-macros",
+ "atsame54n",
+ "bitfield 0.13.2",
+ "bitflags 2.9.1",
+ "cipher",
+ "cortex-m",
+ "critical-section",
+ "embedded-hal 0.2.7",
+ "embedded-hal 1.0.0",
+ "embedded-hal-nb",
+ "embedded-io 0.6.1",
+ "fugit",
+ "heapless 0.8.0",
+ "modular-bitfield",
+ "nb 1.1.0",
+ "num-traits",
+ "opaque-debug",
+ "paste",
+ "rand_core 0.9.3",
+ "seq-macro",
+ "sorted-hlist",
+ "typenum",
+ "void",
+]
+
+[[package]]
+name = "atsamd-hal-macros"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ae9d1e473cf24a5deb7966c2e2559e0d739ca7734c0f1b9a058ef31e8188e9f4"
+dependencies = [
+ "litrs 0.4.2",
+ "phf",
+ "phf_codegen",
+ "serde",
+ "serde_yaml",
+]
+
+[[package]]
+name = "atsame54n"
+version = "0.14.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3613a4b328f102127e66a3d69c189ad07671cde3bc9b7743873e36cb477d0064"
+dependencies = [
+ "cortex-m",
+ "critical-section",
+ "vcell",
+]
+
+[[package]]
 name = "autocfg"
 version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1048,7 +1124,7 @@ dependencies = [
  "embedded-io 0.6.1",
  "embedded-io-async 0.6.1",
  "futures-intrusive",
- "heapless 0.8.0",
+ "heapless 0.9.1",
 ]
 
 [[package]]
@@ -1845,7 +1921,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8d162beedaa69905488a8da94f5ac3edb4dd4788b732fadb7bd120b2625c1976"
 dependencies = [
  "data-encoding",
- "syn 1.0.109",
+ "syn 2.0.114",
 ]
 
 [[package]]
@@ -2018,7 +2094,7 @@ version = "0.2.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d4b8a88685455ed29a21542a33abd9cb6510b6b129abadabdcef0f4c55bc8f61"
 dependencies = [
- "litrs",
+ "litrs 1.0.0",
 ]
 
 [[package]]
@@ -3767,6 +3843,7 @@ version = "0.0.0"
 dependencies = [
  "ariel-os",
  "ariel-os-boards",
+ "atsamd-hal",
 ]
 
 [[package]]
@@ -4361,6 +4438,15 @@ checksum = "241eaef5fd12c88705a01fc1066c48c4b36e0dd4377dcdc7ec3942cea7a69956"
 
 [[package]]
 name = "litrs"
+version = "0.4.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f5e54036fe321fd421e10d732f155734c4e4afd610dd556d9a82833ab3ee0bed"
+dependencies = [
+ "proc-macro2",
+]
+
+[[package]]
+name = "litrs"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "11d3d7f243d5c5a8b9bb5d6dd2b1602c0cb0b9db1621bafc7ed66e35ff9fe092"
@@ -4444,6 +4530,27 @@ name = "minimal-lexical"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "68354c5c6bd36d73ff3feceb05efa59b6acb7626617f4962be322a825e61f79a"
+
+[[package]]
+name = "modular-bitfield"
+version = "0.11.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a53d79ba8304ac1c4f9eb3b9d281f21f7be9d4626f72ce7df4ad8fbde4f38a74"
+dependencies = [
+ "modular-bitfield-impl",
+ "static_assertions",
+]
+
+[[package]]
+name = "modular-bitfield-impl"
+version = "0.11.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5a7d5f7076603ebc68de2dc6a650ec331a062a13abaa346975be747bbfa4b789"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 1.0.109",
+]
 
 [[package]]
 name = "nb"
@@ -4844,6 +4951,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1fd6780a80ae0c52cc120a26a1a42c1ae51b247a253e4e06113d23d2c2edd078"
 dependencies = [
  "phf_macros",
+ "phf_shared",
+]
+
+[[package]]
+name = "phf_codegen"
+version = "0.11.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "aef8048c789fa5e851558d709946d6d79a8ff88c0440c587967f8e94bfb1216a"
+dependencies = [
+ "phf_generator",
  "phf_shared",
 ]
 
@@ -5671,6 +5788,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f97841a747eef040fcd2e7b3b9a220a7205926e60488e673d9e4926d27772ce5"
 
 [[package]]
+name = "seq-macro"
+version = "0.3.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1bc711410fbe7399f390ca1c3b60ad0f53f80e95c5eb935e52268a0e2cd49acc"
+
+[[package]]
 name = "sequential-storage"
 version = "6.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5897,6 +6020,15 @@ name = "somni-parser"
 version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a0f368519fc6c85fc1afdb769fb5a51123f6158013e143656e25a3485a0d401c"
+
+[[package]]
+name = "sorted-hlist"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e3b3c9d254b6644002aecb837882062fbca9af420d2cd4c2f0e4da248d80571b"
+dependencies = [
+ "typenum",
+]
 
 [[package]]
 name = "spi-loopback"

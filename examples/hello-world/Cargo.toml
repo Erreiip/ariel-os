@@ -7,6 +7,7 @@ publish = false
 [dependencies]
 ariel-os = { path = "../../src/ariel-os" }
 ariel-os-boards = { path = "../../src/ariel-os-boards" }
+atsamd-hal.workspace = true
 
 [lints]
 workspace = true

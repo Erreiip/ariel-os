@@ -1,0 +1,8 @@
+apps:
+  - name: crates/ariel-os-atsamd
+    selects:
+      - host-test-only
+    env:
+      global:
+        RUSTFLAGS:
+          - '--cfg context="same54"'

@@ -98,7 +98,7 @@ fn write_memoryx() {
             (ram, flash)
         }
     } else {
-        panic!("please set the MCU laze context");
+        (256, 1024)
     };
 
     let (pagesize, ram_base, flash_base) = if context("nrf5340-net") {
