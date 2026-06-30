@@ -22,9 +22,6 @@ ariel-os-esp = { path = "../ariel-os-esp" }
 [target.'cfg(context = "native")'.dependencies]
 ariel-os-native = { path = "../ariel-os-native" }
 
-[target.'cfg(context = "nrf")'.dependencies]
-ariel-os-nrf = { path = "../ariel-os-nrf" }
-
 [target.'cfg(context = "rp")'.dependencies]
 ariel-os-rp = { path = "../ariel-os-rp" }
 
@@ -49,7 +46,6 @@ trouble-host = { workspace = true, optional = true }
 external-interrupts = [
   "ariel-os-embassy-common/external-interrupts",
   "ariel-os-esp/external-interrupts",
-  "ariel-os-nrf/external-interrupts",
   "ariel-os-rp/external-interrupts",
   "ariel-os-stm32/external-interrupts",
 ]
@@ -60,7 +56,6 @@ i2c = [
 
   "ariel-os-embassy-common/i2c",
   "ariel-os-esp/i2c",
-  "ariel-os-nrf/i2c",
   "ariel-os-rp/i2c",
   "ariel-os-stm32/i2c",
 ]
@@ -68,7 +63,6 @@ i2c = [
 spi = [
   "ariel-os-embassy-common/spi",
   "ariel-os-esp/spi",
-  "ariel-os-nrf/spi",
   "ariel-os-rp/spi",
   "ariel-os-stm32/spi",
 ]
@@ -76,7 +70,6 @@ spi = [
 ## Enables a time driver, and functionality requiring `embassy-time`.
 time = [
   "ariel-os-esp/time",
-  "ariel-os-nrf/time",
   "ariel-os-rp/time",
   "ariel-os-stm32/time",
 ]
@@ -84,14 +77,12 @@ time = [
 uart = [
   "ariel-os-embassy-common/uart",
   "ariel-os-esp/uart",
-  "ariel-os-nrf/uart",
   "ariel-os-rp/uart",
   "ariel-os-stm32/uart",
 ]
 
 usb = [
   "ariel-os-esp/usb",
-  "ariel-os-nrf/usb",
   "ariel-os-rp/usb",
   "ariel-os-stm32/usb",
 ]
@@ -101,41 +92,34 @@ ble = [
   "dep:embedded-io",
   "dep:trouble-host",
   "ariel-os-embassy-common/ble",
-  "ariel-os-nrf/ble",
 ]
 ble-cyw43 = ["ariel-os-rp/ble-cyw43", "ble"]
 ble-esp = ["ariel-os-esp/ble-esp", "ble"]
 ble-peripheral = [
   "ariel-os-esp/ble-peripheral",
-  "ariel-os-nrf/ble-peripheral",
   "ariel-os-rp/ble-peripheral",
 ]
 ble-central = [
   "ariel-os-esp/ble-central",
-  "ariel-os-nrf/ble-central",
   "ariel-os-rp/ble-central",
 ]
 
-nrf91-modem = ["ariel-os-nrf/nrf91-modem"]
 
 hwrng = [
   "ariel-os-esp/hwrng",
   "ariel-os-native/hwrng",
-  "ariel-os-nrf/hwrng",
   "ariel-os-rp/hwrng",
   "ariel-os-stm32/hwrng",
 ]
 
 storage = [
   #"ariel-os-esp/storage",
-  "ariel-os-nrf/storage",
   "ariel-os-rp/storage",
   "ariel-os-stm32/storage",
 ]
 
 threading = [
   "ariel-os-esp/threading",
-  #"ariel-os-nrf/threading",
   #"ariel-os-rp/threading",
   #"ariel-os-stm32/threading",
 ]
@@ -145,14 +129,8 @@ wifi-esp = ["ariel-os-esp/wifi-esp"]
 
 ethernet-stm32 = ["ariel-os-stm32/ethernet-stm32"]
 
-ltem-nrf-modem = ["ariel-os-nrf/ltem-nrf-modem"]
-
-ipv4 = ["ariel-os-nrf/ipv4"]
-ipv6 = ["ariel-os-nrf/ipv6"]
-
 executor-interrupt = [
   #"ariel-os-esp/executor-interrupt",
-  "ariel-os-nrf/executor-interrupt",
   "ariel-os-rp/executor-interrupt",
   "ariel-os-stm32/executor-interrupt",
 ]
@@ -160,7 +138,6 @@ executor-interrupt = [
 defmt = [
   "ariel-os-embassy-common/defmt",
   "ariel-os-esp/defmt",
-  "ariel-os-nrf/defmt",
   "ariel-os-rp/defmt",
   "ariel-os-stm32/defmt",
   "embedded-hal-async/defmt-03",
