@@ -13,11 +13,11 @@ async fn main() {
     
     stack.wait_config_up().await;
 
-    {
-        let config = stack.config_v4().expect("Must work at all cost");
-        let addres = config.address.address();
-        info!("addres V4 = {}", addres); 
-    }
+    // {
+    //     let config = stack.config_v4().expect("Must work at all cost");
+    //     let addres = config.address.address();
+    //     info!("addres V4 = {}", addres);
+    // }
 
     {
         let config = stack.config_v6().expect("Must work at all cost");
