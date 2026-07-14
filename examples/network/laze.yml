@@ -1,0 +1,8 @@
+apps:
+  - name: example-network
+    selects:
+      - ipv4
+      - ipv6
+      - network-config-ipv6-default
+      - network-config-ipv4-dhcp
+      - network

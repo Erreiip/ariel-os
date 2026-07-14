@@ -17,6 +17,8 @@ use reqwless::{
     request::Method,
 };
 
+mod mdns;
+
 // RFC8449: TLS 1.3 encrypted records are limited to 16 KiB + 256 bytes.
 const MAX_ENCRYPTED_TLS_13_RECORD_SIZE: usize = 16640;
 // Required by `embedded_tls::TlsConnection::new()`.
