@@ -1,6 +1,6 @@
 
-use core::net::{IpAddr, Ipv6Addr, SocketAddr, SocketAddrV6};
-use embassy_net::{IpAddress, IpListenEndpoint};
+use core::net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr, SocketAddrV4, SocketAddrV6};
+use embassy_net::{IpAddress, IpEndpoint, IpListenEndpoint};
 
 pub fn socket_to_listenendpoint(x: SocketAddr) -> IpListenEndpoint {
 
@@ -23,6 +23,43 @@ pub fn socket_to_listenendpoint(x: SocketAddr) -> IpListenEndpoint {
     IpListenEndpoint {
         addr: Some(ip_address),
         port: x.port()
+    }
+}
+
+pub fn socket_to_ipendpoint(x: SocketAddr) -> IpEndpoint {
+
+    let ipv6_slice = match x {
+        SocketAddr::V6(ref a) => *a.ip(),
+        _ => panic!("Not possible")
+    }.octets();
+
+    let ip_address = IpAddress::v6(
+        ipv6_slice[0].into(),
+        ipv6_slice[1].into(),
+        ipv6_slice[2].into(),
+        ipv6_slice[3].into(),
+        ipv6_slice[4].into(),
+        ipv6_slice[5].into(),
+        ipv6_slice[6].into(),
+        ipv6_slice[7].into()
+    );
+
+    IpEndpoint {
+        addr: ip_address,
+        port: x.port()
+    }
+}
+
+pub fn ipendpoint_to_socket_address(x: IpEndpoint) -> SocketAddr {
+
+    let port = x.port;
+    match x.addr {
+        IpAddress::Ipv4(ref a) => {
+            SocketAddr::new(Ipv4Addr::from_octets(a.octets()).into(), port)
+        }
+        IpAddress::Ipv6(ref a) => {
+            SocketAddr::new(Ipv6Addr::from_octets(a.octets()).into(), port)
+        }
     }
 }
 
@@ -53,3 +90,4 @@ pub fn ipvaddr_to_embassy_ipaddr(x: IpAddr) -> IpAddress {
         }
     }
 }
+

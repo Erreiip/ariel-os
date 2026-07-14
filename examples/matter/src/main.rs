@@ -7,7 +7,6 @@ use ariel_os::{log::*, net};
 
 use ariel_os_random::FastRng;
 
-use core::net::{IpAddr, Ipv6Addr, SocketAddr, SocketAddrV6};
 use core::pin::pin;
 
 use embassy_futures::select::select4;
@@ -36,9 +35,13 @@ use rs_matter::{clusters, devices, root_endpoint, Matter, MATTER_PORT};
 use rs_matter::persist::DummyKvBlobStore;
 
 mod mdns;
-mod socket;
+mod socket_utils;
+mod socket_network;
 
-use socket::socket_to_listenendpoint;
+use socket_utils::socket_to_listenendpoint;
+
+use crate::socket_network::SocketNetwork;
+use crate::socket_utils::socket_to_ipendpoint;
 
 #[ariel_os::task(autostart)]
 async fn main() {
@@ -93,14 +96,18 @@ async fn main() {
     let mut rx_meta = [PacketMetadata::EMPTY; 1];
     let mut tx_meta = [PacketMetadata::EMPTY; 1];
 
-    let mut socket = UdpSocket::new(
+    let mut socket_intern = UdpSocket::new(
         stack,
         &mut rx_meta,
         &mut rx_buffer,
         &mut tx_meta,
         &mut tx_buffer,
     );
-    socket.bind(socket_to_listenendpoint(MATTER_SOCKET_BIND_ADDR)).expect("ARGHHH");
+    socket_intern.bind(socket_to_ipendpoint(MATTER_SOCKET_BIND_ADDR).into()).expect("ARGHHH");
+
+    let mut socket = SocketNetwork {
+        inner: &mut socket_intern
+    };
 
     let mut mdns = pin!(mdns::run_mdns(&matter, &crypto));
     let mut transport = pin!(matter.run(&crypto, &socket, &socket, &socket));

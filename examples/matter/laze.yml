@@ -1,4 +1,5 @@
 apps:
   - name: example-matter
     selects:
+      - network-config-ipv4-dhcp
       - network
