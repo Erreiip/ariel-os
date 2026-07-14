@@ -1,0 +1,31 @@
+[package]
+name = "example-matter"
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+ariel-os = { path = "../../src/ariel-os", features = [
+    "dns",
+    "mdns",
+    "multicast"
+]}
+ariel-os-boards = { path = "../../src/ariel-os-boards" }
+ariel-os-random = { workspace = true }
+
+embassy-net = { workspace = true, features = [
+  "proto-ipv6",
+  "udp",
+  "dns",
+  "mdns"
+]}
+embassy-futures = { workspace = true }
+embassy-sync = { workspace = true }
+
+rand-core-06 = { package = "rand_core", version = "0.6" }
+rand_core = { workspace = true }
+
+rs-matter = { version = "0.2.0", default-features = false }
+
+[lints]
+workspace = true
