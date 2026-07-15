@@ -11,41 +11,37 @@ use core::pin::pin;
 
 use embassy_futures::select::select4;
 use embassy_net::udp::{PacketMetadata, UdpSocket};
-use embassy_net::{IpAddress, IpListenEndpoint};
 
 use rs_matter::crypto::{Crypto, default_crypto};
 use rs_matter::dm::clusters::app::level_control::LevelControlHooks;
-use rs_matter::dm::clusters::app::on_off::{self, test::TestOnOffDeviceLogic, OnOffHooks};
+use rs_matter::dm::clusters::app::on_off::{self, OnOffHooks, test::TestOnOffDeviceLogic};
 use rs_matter::dm::clusters::desc::{self, ClusterHandler as _};
 use rs_matter::dm::clusters::groups::{self, ClusterHandler as _};
-use rs_matter::dm::devices::test::{DAC_PRIVKEY, TEST_DEV_ATT, TEST_DEV_COMM, TEST_DEV_DET};
 use rs_matter::dm::devices::DEV_TYPE_ON_OFF_LIGHT;
+use rs_matter::dm::devices::test::{DAC_PRIVKEY, TEST_DEV_ATT, TEST_DEV_COMM, TEST_DEV_DET};
 use rs_matter::dm::endpoints;
 use rs_matter::dm::networks::eth::EthNetwork;
 use rs_matter::dm::{Async, DataModel, Dataver, Endpoint, EpClMatcher, Node};
 use rs_matter::im::{EthInteractionModelState, InteractionModel};
-use rs_matter::pairing::qr::QrTextType;
 use rs_matter::pairing::DiscoveryCapabilities;
+use rs_matter::pairing::qr::QrTextType;
+use rs_matter::persist::DummyKvBlobStore;
 use rs_matter::respond::DefaultResponder;
 use rs_matter::sc::pase::MAX_COMM_WINDOW_TIMEOUT_SECS;
-use rs_matter::transport::exchange::MatterBuffers;
 use rs_matter::transport::MATTER_SOCKET_BIND_ADDR;
+use rs_matter::transport::exchange::MatterBuffers;
 use rs_matter::utils::select::Coalesce;
-use rs_matter::{clusters, devices, root_endpoint, Matter, MATTER_PORT};
-use rs_matter::persist::DummyKvBlobStore;
+use rs_matter::{MATTER_PORT, Matter, clusters, devices, root_endpoint};
 
 mod mdns;
-mod socket_utils;
 mod socket_network;
-
-use socket_utils::socket_to_listenendpoint;
+mod socket_utils;
 
 use crate::socket_network::SocketNetwork;
 use crate::socket_utils::socket_to_ipendpoint;
 
 #[ariel_os::task(autostart)]
 async fn main() {
-
     let matter = Matter::new(&TEST_DEV_DET, TEST_DEV_COMM, &TEST_DEV_ATT, MATTER_PORT);
 
     let buffers: MatterBuffers = MatterBuffers::new();
@@ -57,7 +53,7 @@ async fn main() {
     let kv = matter.kv(store);
 
     let mut c = CryptoRngWrapperP {
-        inner: &mut ariel_os_random::fast_rng()
+        inner: &mut ariel_os_random::fast_rng(),
     };
 
     let crypto = default_crypto(&mut c, DAC_PRIVKEY);
@@ -103,10 +99,13 @@ async fn main() {
         &mut tx_meta,
         &mut tx_buffer,
     );
-    socket_intern.bind(socket_to_ipendpoint(MATTER_SOCKET_BIND_ADDR).into()).expect("ARGHHH");
+    socket_intern
+        .bind(socket_to_ipendpoint(MATTER_SOCKET_BIND_ADDR))
+        .expect("ARGHHH");
 
-    let mut socket = SocketNetwork {
-        inner: &mut socket_intern
+    let socket = SocketNetwork {
+        inner: &mut socket_intern,
+        stack: &stack,
     };
 
     let mut mdns = pin!(mdns::run_mdns(&matter, &crypto));
@@ -116,10 +115,16 @@ async fn main() {
         // If the device is not commissioned yet, print the QR text and code to the console
         // and enable basic commissioning
 
-        matter.print_standard_qr_text(DiscoveryCapabilities::IP).expect("NO");
-        matter.print_standard_qr_code(QrTextType::Unicode, DiscoveryCapabilities::IP).expect("NO");
+        matter
+            .print_standard_qr_text(DiscoveryCapabilities::IP)
+            .expect("NO");
+        matter
+            .print_standard_qr_code(QrTextType::Unicode, DiscoveryCapabilities::IP)
+            .expect("NO");
 
-        matter.open_basic_comm_window(MAX_COMM_WINDOW_TIMEOUT_SECS, &crypto, &()).expect("NO");
+        matter
+            .open_basic_comm_window(MAX_COMM_WINDOW_TIMEOUT_SECS, &crypto, &())
+            .expect("NO");
     }
 
     let all = select4(&mut transport, &mut mdns, &mut respond, &mut im_job).coalesce();
@@ -133,12 +138,11 @@ async fn main() {
     info!("This is an error");
 
     loop {}
+    
 }
 
-
-
 struct CryptoRngWrapperP<'a> {
-    inner: &'a mut FastRng
+    inner: &'a mut FastRng,
 }
 
 impl rs_matter::crypto::CryptoRng for CryptoRngWrapperP<'_> {}

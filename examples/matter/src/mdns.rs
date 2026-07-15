@@ -18,22 +18,21 @@
 //! A module containing the mDNS code used in the examples
 
 use ariel_os::{
-    log::{info, warn},
-    net
+    net,
 };
 use rs_matter::Matter;
 use rs_matter::{crypto::Crypto, error::Error};
 
 use embassy_net::udp::{PacketMetadata, UdpSocket};
 
-use crate::{socket_network::SocketNetwork, socket_utils::ipvaddr_to_embassy_ipaddr};
 use crate::socket_utils::socket_to_listenendpoint;
+use crate::{socket_network::SocketNetwork, socket_utils::ipvaddr_to_embassy_ipaddr};
 
-use rs_matter::transport::network::{Ipv4Addr, Ipv6Addr};
+use rs_matter::transport::network::{Ipv6Addr};
 
 use rs_matter::transport::network::mdns::builtin::{BuiltinMdns, Host};
 use rs_matter::transport::network::mdns::{
-    MDNS_IPV4_BROADCAST_ADDR, MDNS_IPV6_BROADCAST_ADDR, MDNS_SOCKET_DEFAULT_BIND_ADDR,
+    MDNS_IPV4_BROADCAST_ADDR, MDNS_SOCKET_DEFAULT_BIND_ADDR,
 };
 
 #[allow(unused)]
@@ -81,11 +80,10 @@ pub async fn run_mdns<C: Crypto>(matter: &Matter<'_>, crypto: C) -> Result<(), E
 
 #[allow(unused)]
 async fn run_builtin_mdns<C: Crypto>(matter: &Matter<'_>, crypto: C) -> Result<(), Error> {
-
     // NOTE:
     // When using a custom UDP stack (e.g. for `no_std` environments), replace with a UDP socket bind + multicast join for your custom UDP stack
     // The returned socket should be splittable into two halves, where each half implements `UdpSend` and `UdpReceive` respectively
-    
+
     // let mut socket = Socket::new(Domain::IPV6, Type::DGRAM, Some(Protocol::UDP))?;
     // socket.set_reuse_address(true)?;
     // socket.set_only_v6(false)?;
@@ -100,12 +98,14 @@ async fn run_builtin_mdns<C: Crypto>(matter: &Matter<'_>, crypto: C) -> Result<(
     //     .join_multicast_v4(&MDNS_IPV4_BROADCAST_ADDR, &ipv4_addr)?;
     let stack = net::network_stack().await.unwrap();
     stack.wait_config_up().await;
-    stack.join_multicast_group(ipvaddr_to_embassy_ipaddr(MDNS_IPV4_BROADCAST_ADDR.into())).expect("IPV4 Group");
+    stack
+        .join_multicast_group(ipvaddr_to_embassy_ipaddr(MDNS_IPV4_BROADCAST_ADDR.into()))
+        .expect("IPV4 Group");
 
     let mut rx_buffer = [0; 256];
     let mut tx_buffer = [0; 256];
     let mut rx_meta = [PacketMetadata::EMPTY; 1];
-    let mut tx_meta = [PacketMetadata::EMPTY; 1];   
+    let mut tx_meta = [PacketMetadata::EMPTY; 1];
     let mut socket_intern = UdpSocket::new(
         stack,
         &mut rx_meta,
@@ -114,13 +114,20 @@ async fn run_builtin_mdns<C: Crypto>(matter: &Matter<'_>, crypto: C) -> Result<(
         &mut tx_buffer,
     );
     // socket.set_reuse_address(true)?;
-    socket_intern.bind(socket_to_listenendpoint(MDNS_SOCKET_DEFAULT_BIND_ADDR)).expect("ERROR");
+    socket_intern
+        .bind(socket_to_listenendpoint(MDNS_SOCKET_DEFAULT_BIND_ADDR))
+        .expect("ERROR");
 
     let mut socket = SocketNetwork {
-        inner: &mut socket_intern
+        inner: &mut socket_intern,
+        stack: &stack,
     };
 
-    let ipv4address = stack.config_v4().expect("Error due to no ipv4 addr").address.address();
+    let ipv4address = stack
+        .config_v4()
+        .expect("Error due to no ipv4 addr")
+        .address
+        .address();
 
     BuiltinMdns::new()
         .run(
