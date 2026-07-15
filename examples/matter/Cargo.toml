@@ -25,7 +25,9 @@ embassy-sync = { workspace = true }
 rand-core-06 = { package = "rand_core", version = "0.6" }
 rand_core = { workspace = true }
 
-rs-matter = { version = "0.2.0", default-features = false }
+rs-matter = { version = "0.2.0", default-features = false, features = [
+  "rustcrypto"
+]}
 
 [lints]
 workspace = true

@@ -119,7 +119,7 @@ async fn run_builtin_mdns<C: Crypto>(matter: &Matter<'_>, crypto: C) -> Result<(
         .expect("ERROR");
 
     let mut socket = SocketNetwork {
-        inner: &mut socket_intern,
+        inner: &mut &socket_intern,
         stack: &stack,
     };
 

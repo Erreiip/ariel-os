@@ -87,24 +87,24 @@ async fn main() {
     stack.wait_config_up().await;
 
     // Increase the buffer size if you want to send bigger packets.
-    let mut rx_buffer = [0; 256];
-    let mut tx_buffer = [0; 256];
-    let mut rx_meta = [PacketMetadata::EMPTY; 1];
-    let mut tx_meta = [PacketMetadata::EMPTY; 1];
+    let rx_buffer: &mut [u8; 256] = &mut [0; 256];
+    let tx_buffer: &mut [u8; 256] = &mut [0; 256];
+    let rx_meta: &mut [PacketMetadata; 1] = &mut [PacketMetadata::EMPTY; 1];
+    let tx_meta: &mut [PacketMetadata; 1] = &mut [PacketMetadata::EMPTY; 1];
 
     let mut socket_intern = UdpSocket::new(
         stack,
-        &mut rx_meta,
-        &mut rx_buffer,
-        &mut tx_meta,
-        &mut tx_buffer,
+        rx_meta,
+        rx_buffer,
+        tx_meta,
+        tx_buffer,
     );
     socket_intern
         .bind(socket_to_ipendpoint(MATTER_SOCKET_BIND_ADDR))
         .expect("ARGHHH");
 
     let socket = SocketNetwork {
-        inner: &mut socket_intern,
+        inner: &mut &socket_intern,
         stack: &stack,
     };
 

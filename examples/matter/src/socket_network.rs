@@ -6,7 +6,7 @@ use rs_matter::{error::{Error, ErrorCode::AttributeNotFound}, transport::network
 use crate::socket_utils::{ipendpoint_to_socket_address, socket_to_ipendpoint};
 
 pub struct SocketNetwork<'a> {
-    pub(crate) inner: &'a mut UdpSocket<'a>,
+    pub(crate) inner: &'a mut &'a UdpSocket<'a>,
     pub(crate) stack: &'a Stack<'a>
 }
 
