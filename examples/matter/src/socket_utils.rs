@@ -2,49 +2,65 @@ use core::net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr};
 use embassy_net::{IpAddress, IpEndpoint, IpListenEndpoint};
 
 pub fn socket_to_listenendpoint(x: SocketAddr) -> IpListenEndpoint {
-    let ipv6_slice = match x {
-        SocketAddr::V6(ref a) => *a.ip(),
-        _ => panic!("Not possible"),
-    }
-    .octets();
-
-    let ip_address = IpAddress::v6(
-        ipv6_slice[0].into(),
-        ipv6_slice[1].into(),
-        ipv6_slice[2].into(),
-        ipv6_slice[3].into(),
-        ipv6_slice[4].into(),
-        ipv6_slice[5].into(),
-        ipv6_slice[6].into(),
-        ipv6_slice[7].into(),
-    );
+    let ip = match x {
+        SocketAddr::V4(ref a) => {
+            let ipv4_slice = a.ip().octets();
+            IpAddress::v4(
+                ipv4_slice[0].into(),
+                ipv4_slice[1].into(),
+                ipv4_slice[2].into(),
+                ipv4_slice[3].into(),
+            )
+        },
+        SocketAddr::V6(ref a) => {
+            let ipv6_slice = a.ip().octets();
+            IpAddress::v6(
+                ipv6_slice[0].into(),
+                ipv6_slice[1].into(),
+                ipv6_slice[2].into(),
+                ipv6_slice[3].into(),
+                ipv6_slice[4].into(),
+                ipv6_slice[5].into(),
+                ipv6_slice[6].into(),
+                ipv6_slice[7].into(),
+            )
+        }
+    };
 
     IpListenEndpoint {
-        addr: Some(ip_address),
+        addr: Some(ip),
         port: x.port(),
     }
 }
 
 pub fn socket_to_ipendpoint(x: SocketAddr) -> IpEndpoint {
-    let ipv6_slice = match x {
-        SocketAddr::V6(ref a) => *a.ip(),
-        _ => panic!("Not possible"),
-    }
-    .octets();
-
-    let ip_address = IpAddress::v6(
-        ipv6_slice[0].into(),
-        ipv6_slice[1].into(),
-        ipv6_slice[2].into(),
-        ipv6_slice[3].into(),
-        ipv6_slice[4].into(),
-        ipv6_slice[5].into(),
-        ipv6_slice[6].into(),
-        ipv6_slice[7].into(),
-    );
+        let ip = match x {
+        SocketAddr::V4(ref a) => {
+            let ipv4_slice = a.ip().octets();
+            IpAddress::v4(
+                ipv4_slice[0].into(),
+                ipv4_slice[1].into(),
+                ipv4_slice[2].into(),
+                ipv4_slice[3].into(),
+            )
+        },
+        SocketAddr::V6(ref a) => {
+            let ipv6_slice = a.ip().octets();
+            IpAddress::v6(
+                ipv6_slice[0].into(),
+                ipv6_slice[1].into(),
+                ipv6_slice[2].into(),
+                ipv6_slice[3].into(),
+                ipv6_slice[4].into(),
+                ipv6_slice[5].into(),
+                ipv6_slice[6].into(),
+                ipv6_slice[7].into(),
+            )
+        }
+    };
 
     IpEndpoint {
-        addr: ip_address,
+        addr: ip,
         port: x.port(),
     }
 }

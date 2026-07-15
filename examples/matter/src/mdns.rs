@@ -18,6 +18,7 @@
 //! A module containing the mDNS code used in the examples
 
 use ariel_os::{
+    log::info,
     net,
 };
 use rs_matter::Matter;
@@ -80,30 +81,20 @@ pub async fn run_mdns<C: Crypto>(matter: &Matter<'_>, crypto: C) -> Result<(), E
 
 #[allow(unused)]
 async fn run_builtin_mdns<C: Crypto>(matter: &Matter<'_>, crypto: C) -> Result<(), Error> {
-    // NOTE:
-    // When using a custom UDP stack (e.g. for `no_std` environments), replace with a UDP socket bind + multicast join for your custom UDP stack
-    // The returned socket should be splittable into two halves, where each half implements `UdpSend` and `UdpReceive` respectively
+    
+    info!("MDNS start discovering");
 
-    // let mut socket = Socket::new(Domain::IPV6, Type::DGRAM, Some(Protocol::UDP))?;
-    // socket.set_reuse_address(true)?;
-    // socket.set_only_v6(false)?;
-    // socket.bind(&MDNS_SOCKET_DEFAULT_BIND_ADDR.into())?;
-    // let socket = async_io::Async::<UdpSocket<'_>>::new_nonblocking(socket.into())?;
-
-    // socket
-    //     .get_ref()
-    //     .join_multicast_v6(&MDNS_IPV6_BROADCAST_ADDR, interface)?;
-    // socket
-    //     .get_ref()
-    //     .join_multicast_v4(&MDNS_IPV4_BROADCAST_ADDR, &ipv4_addr)?;
     let stack = net::network_stack().await.unwrap();
     stack.wait_config_up().await;
     stack
         .join_multicast_group(ipvaddr_to_embassy_ipaddr(MDNS_IPV4_BROADCAST_ADDR.into()))
         .expect("IPV4 Group");
 
-    let mut rx_buffer = [0; 256];
-    let mut tx_buffer = [0; 256];
+    const RX_SIZE: usize = rs_matter::transport::MAX_RX_PAYLOAD_SIZE;
+    const TX_SIZE: usize = rs_matter::transport::MAX_TX_PAYLOAD_SIZE;
+
+    let mut rx_buffer = [0; RX_SIZE];
+    let mut tx_buffer = [0; TX_SIZE];
     let mut rx_meta = [PacketMetadata::EMPTY; 1];
     let mut tx_meta = [PacketMetadata::EMPTY; 1];
     let mut socket_intern = UdpSocket::new(

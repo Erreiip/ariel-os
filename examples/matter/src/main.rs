@@ -87,10 +87,13 @@ async fn main() {
     stack.wait_config_up().await;
 
     // Increase the buffer size if you want to send bigger packets.
-    let rx_buffer: &mut [u8; 256] = &mut [0; 256];
-    let tx_buffer: &mut [u8; 256] = &mut [0; 256];
-    let rx_meta: &mut [PacketMetadata; 1] = &mut [PacketMetadata::EMPTY; 1];
-    let tx_meta: &mut [PacketMetadata; 1] = &mut [PacketMetadata::EMPTY; 1];
+    const RX_SIZE: usize = rs_matter::transport::MAX_RX_PAYLOAD_SIZE;
+    const TX_SIZE: usize = rs_matter::transport::MAX_TX_PAYLOAD_SIZE;
+    
+    let rx_buffer = &mut [0; RX_SIZE];
+    let tx_buffer = &mut [0; TX_SIZE];
+    let rx_meta = &mut [PacketMetadata::EMPTY; 1];
+    let tx_meta = &mut [PacketMetadata::EMPTY; 1];
 
     let mut socket_intern = UdpSocket::new(
         stack,
@@ -103,39 +106,44 @@ async fn main() {
         .bind(socket_to_ipendpoint(MATTER_SOCKET_BIND_ADDR))
         .expect("ARGHHH");
 
+    info!("capa => {}", socket_intern.payload_send_capacity());
+
     let socket = SocketNetwork {
         inner: &mut &socket_intern,
         stack: &stack,
     };
 
+    info!("capa => {}", socket_intern.payload_send_capacity());
+
     let mut mdns = pin!(mdns::run_mdns(&matter, &crypto));
     let mut transport = pin!(matter.run(&crypto, &socket, &socket, &socket));
+
+    info!(" ===> Matter commission is {}", matter.is_commissioned());
 
     if !matter.is_commissioned() {
         // If the device is not commissioned yet, print the QR text and code to the console
         // and enable basic commissioning
 
+        info!("Matter QR code");
+
         matter
             .print_standard_qr_text(DiscoveryCapabilities::IP)
             .expect("NO");
+
         matter
             .print_standard_qr_code(QrTextType::Unicode, DiscoveryCapabilities::IP)
             .expect("NO");
 
         matter
-            .open_basic_comm_window(MAX_COMM_WINDOW_TIMEOUT_SECS, &crypto, &())
+            .open_basic_comm_window(MAX_COMM_WINDOW_TIMEOUT_SECS, &crypto, &()) 
             .expect("NO");
     }
 
     let all = select4(&mut transport, &mut mdns, &mut respond, &mut im_job).coalesce();
 
-    info!("Started correctly");
-    info!("x_x");
-
+    all.await.expect("ERROR FUTUR");    
     // Run with a simple `block_on`. Any local executor would do.
     // futures_lite::future::block_on(all);
-
-    info!("This is an error");
 
     loop {}
     
