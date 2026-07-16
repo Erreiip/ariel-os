@@ -106,14 +106,10 @@ async fn main() {
         .bind(socket_to_ipendpoint(MATTER_SOCKET_BIND_ADDR))
         .expect("ARGHHH");
 
-    info!("capa => {}", socket_intern.payload_send_capacity());
-
     let socket = SocketNetwork {
         inner: &mut &socket_intern,
         stack: &stack,
     };
-
-    info!("capa => {}", socket_intern.payload_send_capacity());
 
     let mut mdns = pin!(mdns::run_mdns(&matter, &crypto));
     let mut transport = pin!(matter.run(&crypto, &socket, &socket, &socket));

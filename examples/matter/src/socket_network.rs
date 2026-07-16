@@ -30,9 +30,6 @@ impl NetworkSend for &SocketNetwork<'_> {
         //     Err(_e) => Err(Error::new(ErrorCode::StdIoError))
         // }
 
-        info!("{}", self.inner.payload_send_capacity());
-        info!("{}", data.len());
-
         self.inner.send_to(data, ip_endpoint).await.expect("Noooo");
 
         Ok(())
