@@ -16,6 +16,7 @@ ariel-os-boards = { path = "../../src/ariel-os-boards" }
 ariel-os-random = { workspace = true }
 
 embassy-net = { workspace = true, features = [
+  "proto-ipv4",
   "proto-ipv6",
   "udp",
   "dns",

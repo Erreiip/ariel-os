@@ -21,6 +21,7 @@ use ariel_os::{
     log::info,
     net,
 };
+use embassy_net::{IpAddress, IpListenEndpoint};
 use rs_matter::Matter;
 use rs_matter::{crypto::Crypto, error::Error};
 
@@ -33,7 +34,7 @@ use rs_matter::transport::network::{Ipv6Addr};
 
 use rs_matter::transport::network::mdns::builtin::{BuiltinMdns, Host};
 use rs_matter::transport::network::mdns::{
-    MDNS_IPV4_BROADCAST_ADDR, MDNS_SOCKET_DEFAULT_BIND_ADDR,
+    MDNS_IPV4_BROADCAST_ADDR, MDNS_PORT, MDNS_SOCKET_DEFAULT_BIND_ADDR,
 };
 
 #[allow(unused)]
@@ -88,7 +89,7 @@ async fn run_builtin_mdns<C: Crypto>(matter: &Matter<'_>, crypto: C) -> Result<(
     stack.wait_config_up().await;
     stack
         .join_multicast_group(ipvaddr_to_embassy_ipaddr(MDNS_IPV4_BROADCAST_ADDR.into()))
-        .expect("IPV4 Group");
+        .expect("IPV6 Group");
 
     const RX_SIZE: usize = rs_matter::transport::MAX_RX_PAYLOAD_SIZE;
     const TX_SIZE: usize = rs_matter::transport::MAX_TX_PAYLOAD_SIZE;
@@ -105,8 +106,22 @@ async fn run_builtin_mdns<C: Crypto>(matter: &Matter<'_>, crypto: C) -> Result<(
         &mut tx_buffer,
     );
     // socket.set_reuse_address(true)?;
+    // socket_intern
+    //     .bind(socket_to_listenendpoint(MDNS_SOCKET_DEFAULT_BIND_ADDR))
+    //     .expect("ERROR");
+
+    let endpoint = IpListenEndpoint {
+        addr: Some(IpAddress::v4(
+                192,
+                168,
+                1,
+                3
+            )),
+        port: MDNS_PORT,
+    };
+
     socket_intern
-        .bind(socket_to_listenendpoint(MDNS_SOCKET_DEFAULT_BIND_ADDR))
+        .bind(endpoint)
         .expect("ERROR");
 
     let mut socket = SocketNetwork {
