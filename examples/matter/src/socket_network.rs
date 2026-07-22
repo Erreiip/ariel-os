@@ -17,13 +17,13 @@ pub struct SocketNetwork<'a> {
 impl NetworkSend for &SocketNetwork<'_> {
     async fn send_to(&mut self, data: &[u8], addr: Address) -> Result<(), Error> {
         
-        let socket_addres = match addr {
-            Address::Udp(ref a) => *a, 
-            Address::Tcp(ref a) => *a, 
+        let socket_address = match addr {
+            Address::Udp(ref a) => *a,
+            Address::Tcp(ref a) => *a,
             _ => panic!("Not implemented") 
         };
         
-        let ip_endpoint: IpEndpoint = socket_to_ipendpoint(socket_addres);
+        let ip_endpoint: IpEndpoint = socket_to_ipendpoint(socket_address);
 
         // match self.inner.send_to(data, ip_endpoint).await {
         //     Ok(o) => Ok(o),
@@ -38,9 +38,8 @@ impl NetworkSend for &SocketNetwork<'_> {
 
 impl NetworkReceive for &SocketNetwork<'_> {
     async fn wait_available(&mut self) -> Result<(), Error> {
-        while !self.inner.may_recv() {
-            Timer::after_millis(100).await;
-        }
+
+        self.inner.wait_recv_ready().await;
 
         Ok(())
     }

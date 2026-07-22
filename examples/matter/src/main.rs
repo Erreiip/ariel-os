@@ -4,8 +4,10 @@
 // use ariel_os::reexports::embassy_net::{IpAddress, IpListenEndpoint};
 // use ariel_os::{log::*, net, reexports::embassy_net};
 use ariel_os::{log::*, net};
+use ariel_os::time::Timer;
 
 use ariel_os_random::FastRng;
+use embassy_net::IpListenEndpoint;
 
 use core::pin::pin;
 
@@ -26,7 +28,7 @@ use rs_matter::im::{EthInteractionModelState, InteractionModel};
 use rs_matter::pairing::DiscoveryCapabilities;
 use rs_matter::pairing::qr::QrTextType;
 use rs_matter::persist::DummyKvBlobStore;
-use rs_matter::respond::DefaultResponder;
+use rs_matter::respond::{DefaultResponder, Responder};
 use rs_matter::sc::pase::MAX_COMM_WINDOW_TIMEOUT_SECS;
 use rs_matter::transport::MATTER_SOCKET_BIND_ADDR;
 use rs_matter::transport::exchange::MatterBuffers;
@@ -36,7 +38,9 @@ use rs_matter::{MATTER_PORT, Matter, clusters, devices, root_endpoint};
 mod mdns;
 mod socket_network;
 mod socket_utils;
+mod response_handler;
 
+use crate::response_handler::CustomResponder;
 use crate::socket_network::SocketNetwork;
 use crate::socket_utils::socket_to_ipendpoint;
 
@@ -75,7 +79,7 @@ async fn main() {
         &state,
     );
 
-    let responder = DefaultResponder::new(&im);
+    let responder = CustomResponder::new(&im);
 
     let mut respond = pin!(responder.run::<4, 4>());
 
@@ -85,6 +89,11 @@ async fn main() {
 
     info!("waiting for interface to come up...");
     stack.wait_config_up().await;
+
+    while stack.config_v4().is_none() {
+        Timer::after_millis(1000).await;
+        info!("waiting for ipv4");
+    }
 
     // Increase the buffer size if you want to send bigger packets.
     const RX_SIZE: usize = rs_matter::transport::MAX_RX_PAYLOAD_SIZE;
@@ -102,9 +111,15 @@ async fn main() {
         tx_meta,
         tx_buffer,
     );
+
+    let endpoint = IpListenEndpoint {
+        addr: None,
+        port: MATTER_PORT,
+    };
+
     socket_intern
-        .bind(socket_to_ipendpoint(MATTER_SOCKET_BIND_ADDR))
-        .expect("ARGHHH");
+        .bind(endpoint)
+        .expect("ERROR");
 
     let socket = SocketNetwork {
         inner: &mut &socket_intern,
@@ -137,7 +152,7 @@ async fn main() {
 
     let all = select4(&mut transport, &mut mdns, &mut respond, &mut im_job).coalesce();
 
-    all.await.expect("ERROR FUTUR");    
+    all.await.expect("ERROR FUTUR");
     // Run with a simple `block_on`. Any local executor would do.
     // futures_lite::future::block_on(all);
 

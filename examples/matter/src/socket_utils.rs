@@ -13,7 +13,7 @@ pub fn socket_to_listenendpoint(x: SocketAddr) -> IpListenEndpoint {
             )
         },
         SocketAddr::V6(ref a) => {
-            let ipv6_slice = a.ip().octets();
+            let ipv6_slice = a.ip().segments();
             IpAddress::v6(
                 ipv6_slice[0].into(),
                 ipv6_slice[1].into(),
@@ -45,7 +45,7 @@ pub fn socket_to_ipendpoint(x: SocketAddr) -> IpEndpoint {
             )
         },
         SocketAddr::V6(ref a) => {
-            let ipv6_slice = a.ip().octets();
+            let ipv6_slice = a.ip().segments();
             IpAddress::v6(
                 ipv6_slice[0].into(),
                 ipv6_slice[1].into(),
@@ -85,16 +85,16 @@ pub fn ipvaddr_to_embassy_ipaddr(x: IpAddr) -> IpAddress {
             )
         }
         IpAddr::V6(ref a) => {
-            let octects = a.octets();
+            let segments = a.segments();
             IpAddress::v6(
-                octects[0].into(),
-                octects[1].into(),
-                octects[2].into(),
-                octects[3].into(),
-                octects[4].into(),
-                octects[5].into(),
-                octects[6].into(),
-                octects[7].into(),
+                segments[0].into(),
+                segments[1].into(),
+                segments[2].into(),
+                segments[3].into(),
+                segments[4].into(),
+                segments[5].into(),
+                segments[6].into(),
+                segments[7].into(),
             )
         }
     }

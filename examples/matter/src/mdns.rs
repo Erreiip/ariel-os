@@ -34,47 +34,11 @@ use rs_matter::transport::network::{Ipv6Addr};
 
 use rs_matter::transport::network::mdns::builtin::{BuiltinMdns, Host};
 use rs_matter::transport::network::mdns::{
-    MDNS_IPV4_BROADCAST_ADDR, MDNS_PORT, MDNS_SOCKET_DEFAULT_BIND_ADDR,
+    MDNS_IPV4_BROADCAST_ADDR, MDNS_PORT, MDNS_SOCKET_DEFAULT_BIND_ADDR, MDNS_IPV6_BROADCAST_ADDR
 };
 
 #[allow(unused)]
 pub async fn run_mdns<C: Crypto>(matter: &Matter<'_>, crypto: C) -> Result<(), Error> {
-    #[cfg(feature = "astro-dnssd")]
-    rs_matter::transport::network::mdns::astro::AstroMdns::new()
-        .run(matter)
-        .await?;
-
-    #[cfg(all(feature = "zeroconf", not(feature = "astro-dnssd")))]
-    rs_matter::transport::network::mdns::zeroconf::ZeroconfMdns::new()
-        .run(matter)
-        .await?;
-
-    #[cfg(all(
-        feature = "resolve",
-        not(any(feature = "zeroconf", feature = "astro-dnssd"))
-    ))]
-    rs_matter::transport::network::mdns::resolve::ResolveMdns::new(
-        rs_matter::utils::zbus::Connection::system().await.unwrap(),
-    )
-    .run(matter)
-    .await?;
-
-    #[cfg(all(
-        feature = "avahi",
-        not(any(feature = "resolve", feature = "zeroconf", feature = "astro-dnssd"))
-    ))]
-    rs_matter::transport::network::mdns::avahi::AvahiMdns::new(
-        rs_matter::utils::zbus::Connection::system().await.unwrap(),
-    )
-    .run(matter)
-    .await?;
-
-    #[cfg(not(any(
-        feature = "avahi",
-        feature = "resolve",
-        feature = "zeroconf",
-        feature = "astro-dnssd"
-    )))]
     run_builtin_mdns(matter, crypto).await?;
 
     Ok(())
@@ -89,6 +53,10 @@ async fn run_builtin_mdns<C: Crypto>(matter: &Matter<'_>, crypto: C) -> Result<(
     stack.wait_config_up().await;
     stack
         .join_multicast_group(ipvaddr_to_embassy_ipaddr(MDNS_IPV4_BROADCAST_ADDR.into()))
+        .expect("IPV4 Group");
+
+    stack
+        .join_multicast_group(ipvaddr_to_embassy_ipaddr(MDNS_IPV6_BROADCAST_ADDR.into()))
         .expect("IPV6 Group");
 
     const RX_SIZE: usize = rs_matter::transport::MAX_RX_PAYLOAD_SIZE;
@@ -105,18 +73,9 @@ async fn run_builtin_mdns<C: Crypto>(matter: &Matter<'_>, crypto: C) -> Result<(
         &mut tx_meta,
         &mut tx_buffer,
     );
-    // socket.set_reuse_address(true)?;
-    // socket_intern
-    //     .bind(socket_to_listenendpoint(MDNS_SOCKET_DEFAULT_BIND_ADDR))
-    //     .expect("ERROR");
 
     let endpoint = IpListenEndpoint {
-        addr: Some(IpAddress::v4(
-                192,
-                168,
-                1,
-                3
-            )),
+        addr: None,
         port: MDNS_PORT,
     };
 
@@ -124,7 +83,7 @@ async fn run_builtin_mdns<C: Crypto>(matter: &Matter<'_>, crypto: C) -> Result<(
         .bind(endpoint)
         .expect("ERROR");
 
-    let mut socket = SocketNetwork {
+    let socket = SocketNetwork {
         inner: &mut &socket_intern,
         stack: &stack,
     };
@@ -135,6 +94,13 @@ async fn run_builtin_mdns<C: Crypto>(matter: &Matter<'_>, crypto: C) -> Result<(
         .address
         .address();
 
+    let ipv6address = stack
+        .config_v6()
+        .expect("Error due to no ipv4 addr")
+        .address
+        .address();
+
+
     BuiltinMdns::new()
         .run(
             &socket,
@@ -142,7 +108,7 @@ async fn run_builtin_mdns<C: Crypto>(matter: &Matter<'_>, crypto: C) -> Result<(
             &Host {
                 hostname: "001122334455", //"rs-matter-demo",
                 ip: ipv4address,
-                ipv6: Ipv6Addr::UNSPECIFIED,
+                ipv6: ipv6address,
             },
             Some(ipv4address),
             None,

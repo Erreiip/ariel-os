@@ -3,4 +3,5 @@ apps:
     selects:
       - random
       - network-config-ipv4-dhcp
+      - network-config-ipv6-default
       - network
