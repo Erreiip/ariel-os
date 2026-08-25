@@ -5,6 +5,16 @@ license.workspace = true
 publish = false
 
 [dependencies]
+
+smoltcp = { path = "/home/cmp67/stage/smoltcp", default-features = false, features= [
+  "proto-ipv4",
+  "socket-udp",
+  "socket-dhcpv4",
+  "socket-dns",
+  "socket-mdns",
+  "multicast"
+]}
+
 ariel-os = { path = "../../src/ariel-os", features = [
     "dns",
     "external-interrupts",
@@ -28,7 +38,7 @@ embassy-sync = { workspace = true }
 rand-core-06 = { package = "rand_core", version = "0.6" }
 rand_core = { workspace = true }
 
-rs-matter = { version = "0.2.0", default-features = false, features = [
+rs-matter = { path= "/home/cmp67/stage/rs-matter/rs-matter", version = "0.2.0", default-features = false, features = [
   "rustcrypto",
   "defmt"
 ]}
